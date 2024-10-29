@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Filières
+{% endblock %}
+
+{% block body %}
+	<div class="container mx-auto pt-6">
+		<div class="flex flex-col">
+			<div class="w-full bg-white rounded-lg shadow-md">
+				<div class="bg-red-500 text-white font-bold text-center text-xl p-4 rounded-t-lg">Liste des Filieres</div>
+				<div class="p-4">
+					<div class="overflow-x-auto">
+						{% if filieres is not empty %}
+							<table class="min-w-full bg-white rounded-lg border border-gray-200">
+								<thead>
+									<tr class="bg-gray-200 text-gray-700">
+										<th class="py-2 px-4 border-b text-center">Libelle</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for filiere in filieres %}
+										<tr class="bg-white border-b border-gray-200 hover:bg-gray-100 text-center">
+											<td class="px-6 py-4 text-gray-700 text-center">{{ filiere.libelle }}</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						{% else %}
+							<p>intouvable.</p>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
