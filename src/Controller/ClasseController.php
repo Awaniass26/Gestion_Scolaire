@@ -19,53 +19,56 @@ class ClasseController extends AbstractController
     public function index(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): Response
     {
         $classe = new Classe();
-
+        $errors = [];
+    
         if ($request->isMethod('POST')) {
             $libelle = $request->request->get('libelle');
             $niveau = $request->request->get('niveau');
-            $filiereId = $request->request->get('filiereId');
+            $filiereId = $request->request->get('filiereId'); // Can be null
             $etudiantId = $request->request->get('etudiantId');
-
+    
             $classe->setLibelle($libelle);
             $classe->setNiveau($niveau);
-
+    
+            // Only set filiere if filiereId is provided
             if ($filiereId) {
                 $filiere = $em->getRepository(Filiere::class)->find($filiereId);
-                $classe->setFiliereId($filiere);
+                if ($filiere) {
+                    $classe->setFiliereId($filiere);
+                }
+            } else {
+                $classe->setFiliereId(null); // Explicitly set to null if no filiere selected
             }
-
+    
             if ($etudiantId) {
                 $etudiant = $em->getRepository(Etudiant::class)->find($etudiantId);
                 $classe->setEtudiantId($etudiant);
             }
-
-            $errors = $validator->validate($classe);
-
-            if (count($errors) > 0) {
-                $errorsString = "<ul style='color: red; font-weight: bold;'>";
-                foreach ($errors as $error) {
-                    $errorsString .= "<li>" . $error->getPropertyPath() . ": " . $error->getMessage() . "</li>";
+    
+            $violations = $validator->validate($classe);
+    
+            if (count($violations) > 0) {
+                foreach ($violations as $violation) {
+                    $errors[$violation->getPropertyPath()] = $violation->getMessage();
                 }
-                $errorsString .= "</ul>";
-
-                return new Response($errorsString);
+            } else {
+                $em->persist($classe);
+                $em->flush();
+                return $this->redirectToRoute('classe_list');
             }
-
-            $em->persist($classe);
-            $em->flush();
-
-            return $this->redirectToRoute('classe_list');
         }
-
+    
         $filieres = $em->getRepository(Filiere::class)->findAll();
         $etudiants = $em->getRepository(Etudiant::class)->findAll();
-
+    
         return $this->render('classe/index.html.twig', [
             'classe' => $classe,
             'filieres' => $filieres,
             'etudiants' => $etudiants,
+            'errors' => $errors,
         ]);
     }
+    
 
     #[Route("/classes/list", name: "classe_list")]
     public function list(Request $request, EntityManagerInterface $em, PaginatorInterface $paginator): Response

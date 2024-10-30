@@ -13,59 +13,31 @@ use Knp\Component\Pager\PaginatorInterface;
 
 class EtudiantController extends AbstractController
 {
-
     #[Route("/etudiants", name: "etudiants")]
     public function index(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): Response
     {
         $etudiant = new Etudiant();
+        $errors = [];
 
         if ($request->isMethod('POST')) {
-            $nom = $request->request->get('nom');
-            $prenom = $request->request->get('prenom');
-            $dateNaissance = $request->request->get('dateNaissance');
-            $adresse = $request->request->get('adresse');
-
-            $etudiant->setNom($nom);
-            $etudiant->setPrenom($prenom);
-            $etudiant->setDateNaissance(new \DateTime('2000-01-01'));
-            $etudiant->setAdresse($adresse);
-
-            $errors = $validator->validate($etudiant);
-
-            if (count($errors) > 0) {
-                $errorsString = "<ul style='color: red; font-weight: bold;'>";
-                foreach ($errors as $error) {
-                    $errorsString .= "<li>" . $error->getPropertyPath() . ": " . $error->getMessage() . "</li>";
-                }
-                $errorsString .= "</ul>";
-    
-                return new Response($errorsString);
+            $errors = $this->handleEtudiantForm($request, $etudiant, $validator, $em);
+            if (empty($errors)) {
+                return $this->redirectToRoute('etudiant_list');
             }
-
-            $em->persist($etudiant);
-            $em->flush();
-
-            return $this->redirectToRoute('etudiant_list');
         }
 
-
         return $this->render('etudiant/index.html.twig', [
-            'etudiant' => $etudiant
+            'etudiant' => $etudiant,
+            'error' => $errors
         ]);
     }
 
-
-
     #[Route("/etudiants/list", name: "etudiant_list")]
-
-    public function list( Request $request, $em, PaginatorInterface $paginator): Response
+    public function list(Request $request, EntityManagerInterface $em, PaginatorInterface $paginator): Response
     {
-        $etudiants = $em->getRepository( Etudiant::class)->findAll();
-
-        $query = $em->getRepository(Etudiant::class)->createQueryBuilder('c')->getQuery();
+        $query = $em->getRepository(Etudiant::class)->createQueryBuilder('e')->getQuery();
         $page = $request->query->getInt('page', 1);
         $etudiants = $paginator->paginate($query, $page, 5);
-
 
         return $this->render('etudiant/list.html.twig', [
             'etudiants' => $etudiants,
@@ -73,31 +45,61 @@ class EtudiantController extends AbstractController
     }
 
     #[Route("/etudiants/edit/{id}", name: "etudiant_edit")]
-    public function edit(Request $request, EntityManagerInterface $em,  int $id): Response
+    public function edit(Request $request, EntityManagerInterface $em, ValidatorInterface $validator, int $id): Response
     {
         $etudiant = $em->getRepository(Etudiant::class)->find($id);
-
-        if ($request->isMethod('POST')) {
-            $em->flush();
-
-            return $this->redirectToRoute('etudiant_list');
+        if (!$etudiant) {
+            throw $this->createNotFoundException('Etudiant non trouvée.');
         }
 
-        return $this->render('etudiant/edit.html.twig', [
+        $errors = [];
+        if ($request->isMethod('POST')) {
+            $errors = $this->handleEtudiantForm($request, $etudiant, $validator, $em);
+            if (empty($errors)) {
+                return $this->redirectToRoute('etudiant_list');
+            }
+        }
+
+        return $this->render('etudiant/index.html.twig', [
             'etudiant' => $etudiant,
+            'error' => $errors
         ]);
     }
 
-    #[Route("/etudiants/delete/{id}", name: "etudiant_delete", methods: ["POST"])]
-    public function delete(EntityManagerInterface $em, int $id): Response
+    private function handleEtudiantForm(Request $request, Etudiant $etudiant, ValidatorInterface $validator, EntityManagerInterface $em): array
     {
-        $etudiant = $em->getRepository(Etudiant::class)->find($id);
+        $nom = $request->request->get('nom');
+        $prenom = $request->request->get('prenom');
+        $adresse = $request->request->get('adresse');
 
-        if ($etudiant) {
-            $em->remove($etudiant);
+        // Set name and address
+        $etudiant->setNom($nom);
+        $etudiant->setPrenom($prenom);
+        $etudiant->setAdresse($adresse);
+
+        // Handle date of birth
+        $dateNaissanceString = $request->request->get('dateNaissance');
+        if ($dateNaissanceString) {
+            try {
+                $dateNaissance = new \DateTime($dateNaissanceString);
+                $etudiant->setDateNaissance($dateNaissance);
+            } catch (\Exception $e) {
+                return ['dateNaissance' => 'Date format is invalid.'];
+            }
+        }
+
+        // Validate
+        $violations = $validator->validate($etudiant);
+        $errors = [];
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+        } else {
+            $em->persist($etudiant);
             $em->flush();
         }
 
-        return $this->redirectToRoute('etudiant_list');
+        return $errors;
     }
 }

@@ -14,6 +14,7 @@
 					<table class="min-w-full bg-white">
 						<thead class="bg-red-600 text-white">
 							<tr>
+								<th class="py-3 px-4 text-left">ID</th>
 								<th class="py-3 px-4 text-left">Nom</th>
 								<th class="py-3 px-4 text-left">Prénom</th>
 								<th class="py-3 px-4 text-left">Date de Naissance</th>
@@ -24,6 +25,7 @@
 						<tbody>
 							{% for etudiant in etudiants %}
 								<tr class="border-b">
+									<td class="py-3 px-4 text-center">{{ etudiant.id }}</td>
 									<td class="py-3 px-4 text-center">{{ etudiant.nom }}</td>
 									<td class="py-3 px-4 text-center">{{ etudiant.prenom }}</td>
 									<td class="py-3 px-4 text-center">{{ etudiant.dateNaissance|date('d/m/Y') }}</td>
@@ -31,9 +33,6 @@
 									<td class="py-3 px-4 text-center">
 										<a href="{{ path('etudiant_edit', {'id': etudiant.id}) }}" class="text-blue-600 hover:text-blue-800">
 											<i class="fas fa-edit"></i>
-										</a>
-										<a href="{{ path('etudiant_delete', {'id': etudiant.id}) }}" class="text-red-600 hover:text-red-800" onclick="return confirm('Are you sure?');">
-											<i class="fas fa-trash-alt"></i>
 										</a>
 									</td>
 								</tr>
