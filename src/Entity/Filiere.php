@@ -6,6 +6,8 @@ use App\Repository\FiliereRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: FiliereRepository::class)]
 class Filiere
@@ -16,6 +18,8 @@ class Filiere
     private ?int $id = null;
 
     #[ORM\Column(length: 30)]
+    #[Assert\NotBlank(message: "libelle ne doit pas être vide.")]
+
     private ?string $libelle = null;
 
     /**

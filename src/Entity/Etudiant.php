@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: EtudiantRepository::class)]
 class Etudiant
@@ -17,15 +19,23 @@ class Etudiant
     private ?int $id = null;
 
     #[ORM\Column(length: 25)]
+    #[Assert\NotBlank(message: "nom ne doit pas être vide.")]
+
     private ?string $nom = null;
 
     #[ORM\Column(length: 25)]
+    #[Assert\NotBlank(message: "prenom ne doit pas être vide.")]
+
     private ?string $prenom = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotBlank(message: "date ne doit pas être vide.")]
+
     private ?\DateTimeInterface $dateNaissance = null;
 
     #[ORM\Column(length: 25)]
+    #[Assert\NotBlank(message: "adresse ne doit pas être vide.")]
+
     private ?string $adresse = null;
 
     /**

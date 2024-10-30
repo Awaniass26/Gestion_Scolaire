@@ -8,12 +8,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Knp\Component\Pager\PaginatorInterface;
 
 class FiliereController extends AbstractController
 {
     #[Route("/filieres", name: "filieres")]
 
-    public function index(Request $request, EntityManagerInterface $em): Response
+    public function index(Request $request, EntityManagerInterface $em, ValidatorInterface $validator, PaginatorInterface $paginator): Response
     {
 
         $filiere = new Filiere();
@@ -22,25 +24,32 @@ class FiliereController extends AbstractController
 
             $filiere->setLibelle($libelle);
 
+            $errors = $validator->validate($filiere);
+
+            if (count($errors) > 0) {
+                $errorsString = "<ul style='color: red; font-weight: bold;'>";
+                foreach ($errors as $error) {
+                    $errorsString .= "<li>" . $error->getPropertyPath() . ": " . $error->getMessage() . "</li>";
+                }
+                $errorsString .= "</ul>";
+
+                return new Response($errorsString);
+            }
+
             $em->persist($filiere);
             $em->flush();
 
-            return $this->redirectToRoute('filiere_list');
+            return $this->redirectToRoute('filieres');
+        } else {
+            $filieres = $em->getRepository(Filiere::class)->findAll();
+
+            $query = $em->getRepository(Filiere::class)->createQueryBuilder('c')->getQuery();
+            $page = $request->query->getInt('page', 1);
+            $filieres = $paginator->paginate($query, $page, 5);
         }
-
         return $this->render('filiere/index.html.twig', [
-            'filiere' => $filiere
-        ]);
-    }
-
-    #[Route("/filieres/list", name: "filiere_list")]
-
-    public function list(EntityManagerInterface $em): Response
-    {
-        $filieres = $em->getRepository(Filiere::class)->findAll();
-
-        return $this->render('filiere/list.html.twig', [
-            'filieres' => $filieres,
+            'filiere' => $filiere,
+            'filieres' => $filieres
         ]);
     }
 }

@@ -1,36 +1,51 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des Classes{% endblock %}
+{% block title %}Liste des Classes
+{% endblock %}
 
 {% block body %}
-    <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
-        <h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">Liste des Classes</h1>
+	<div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
+		<h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">Liste des Classes</h1>
 
-        <table class="min-w-full bg-white border border-gray-300">
-            <thead>
-                <tr>
-                    <th class="px-4 py-2 border-b font-medium text-gray-700">ID</th>
-                    <th class="px-4 py-2 border-b font-medium text-gray-700">Libelle</th>
-                    <th class="px-4 py-2 border-b font-medium text-gray-700">Niveau</th>
-                    <th class="px-4 py-2 border-b font-medium text-gray-700">Filiere</th>
-                    <th class="px-4 py-2 border-b font-medium text-gray-700">Etudiant</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for classe in classes %}
-                    <tr class="hover:bg-gray-100">
-                        <td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.id }}</td>
-                        <td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.libelle }}</td>
-                        <td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.niveau }}</td>
-                        <td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.filiereId.libelle }}</td>
-                        <td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.etudiantId.nom }} {{ classe.etudiantId.prenom }}</td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="5" class="px-4 py-2 border-b text-center text-gray-500">Aucune classe trouvée</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+		<table class="min-w-full bg-white border border-gray-300">
+			<thead>
+				<tr>
+					<th class="px-4 py-2 border-b font-medium text-gray-700">ID</th>
+					<th class="px-4 py-2 border-b font-medium text-gray-700">Libelle</th>
+					<th class="px-4 py-2 border-b font-medium text-gray-700">Niveau</th>
+					<th class="px-4 py-2 border-b font-medium text-gray-700">Filiere</th>
+					<th class="px-4 py-2 border-b font-medium text-gray-700">Etudiant</th>
+					<th class="px-4 py-2 border-b font-medium text-gray-700">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for classe in classes %}
+					<tr class="hover:bg-gray-100">
+						<td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.id }}</td>
+						<td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.libelle }}</td>
+						<td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.niveau }}</td>
+						<td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.filiereId.libelle }}</td>
+						<td class="px-4 py-2 border-b text-gray-600 text-center">{{ classe.etudiantId.nom }}
+							{{ classe.etudiantId.prenom }}</td>
+						<td class="px-4 py-2 border-b text-gray-600 text-center">
+							<a href="{{ path('classe_edit', {id: classe.id}) }}" class="text-blue-600 hover:text-blue-800">
+								<i class="fas fa-edit"></i>
+							</a>
+							<a href="{{ path('classe_delete', {id: classe.id}) }}" class="text-red-600 hover:text-red-800" onclick="return confirm('Are you sure?');">
+								<i class="fas fa-trash-alt"></i>
+							</a>
+						</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="5" class="px-4 py-2 border-b text-center text-gray-500">Aucune classe trouvée</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="mt-4">
+			{{ knp_pagination_render(classes) }}
+		</div>
+	</div>
 {% endblock %}

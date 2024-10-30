@@ -1,42 +1,48 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer une Classe{% endblock %}
+{% block title %}{{ classe.id ? 'Modifier' : 'Créer' }} une Classe{% endblock %}
 
 {% block body %}
     <div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
-        <h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">Créer une nouvelle classe</h1>
+        <h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">
+            {{ classe.id ? 'Modifier' : 'Créer' }} une classe
+        </h1>
 
-        <form method="post" action="{{ path('classes') }}" class="space-y-4">
+        <form method="post" action="{{ classe.id ? path('classe_edit', {id: classe.id}) : path('classes') }}" class="space-y-4">
             <div>
                 <label for="libelle" class="block text-sm font-medium text-gray-700">Libelle:</label>
-                <input type="text" id="libelle" name="libelle" required 
+                <input type="text" id="libelle" name="libelle" value="{{ classe.libelle }}" 
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
             <div>
                 <label for="niveau" class="block text-sm font-medium text-gray-700">Niveau:</label>
-                <input type="text" id="niveau" name="niveau" required
+                <input type="text" id="niveau" name="niveau" value="{{ classe.niveau }}"
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
             <div>
                 <label for="filiereId" class="block text-sm font-medium text-gray-700">Filiere:</label>
-                <select id="filiereId" name="filiereId" required
+                <select id="filiereId" name="filiereId" 
                         class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     <option value="">Sélectionnez une Filière</option>
                     {% for filiere in filieres %}
-                        <option value="{{ filiere.id }}">{{ filiere.libelle }}</option>
+                        <option value="{{ filiere.id }}" {% if classe.filiereId and classe.filiereId.id == filiere.id %}selected{% endif %}>
+                            {{ filiere.libelle }}
+                        </option>
                     {% endfor %}
                 </select>
             </div>
 
             <div>
                 <label for="etudiantId" class="block text-sm font-medium text-gray-700">Etudiant:</label>
-                <select id="etudiantId" name="etudiantId" required
+                <select id="etudiantId" name="etudiantId" 
                         class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     <option value="">Sélectionnez un Etudiant</option>
                     {% for etudiant in etudiants %}
-                        <option value="{{ etudiant.id }}">{{ etudiant.nom }} {{ etudiant.prenom }}</option>
+                        <option value="{{ etudiant.id }}" {% if classe.etudiantId and classe.etudiantId.id == etudiant.id %}selected{% endif %}>
+                            {{ etudiant.nom }} {{ etudiant.prenom }}
+                        </option>
                     {% endfor %}
                 </select>
             </div>
@@ -44,7 +50,7 @@
             <div class="text-center mt-6">
                 <button type="submit" 
                         class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Ajouter une classe
+                    {{ classe.id ? 'Modifier la classe' : 'Ajouter une classe' }}
                 </button>
             </div>
         </form>

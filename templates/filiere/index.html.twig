@@ -1,20 +1,71 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajouter une Filière{% endblock %}
+{% block title %}Ajouter une Filière
+{% endblock %}
 
 {% block body %}
-<div class="container mx-auto my-10 max-w-lg p-6 bg-white rounded-lg shadow-md">
-    <h2 class="text-center text-2xl font-bold text-red-600 mb-6">Nouvelle Filiere</h2>
-    <form  action="{{ path('filieres') }}" method="post">
-        <div class="mb-4">
-            <label for="libelle" class="block text-black-700 font-semibold mb-2">Libelle</label>
-            <input type="text" name="libelle" id="libelle" placeholder="Entrez le libelle du Patient" class="w-full p-3 border border-gray-300 rounded-lg">
+	<h2 class="text-center text-2xl font-bold text-red-600 mb-6">Filiere</h2>
 
-        </div>
+	<div class="max-w-full p-2 bg-white rounded-lg shadow-md">
 
-        <button type="submit" class="w-full p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300">
-            Ajouter une filiere
-        </button>
-    </form>
-</div>
+		<div class="container ">
+			<form action="{{ path('filieres') }}" method="post" class="flex justify-center items-center">
+				<div class="mb-4">
+					<label for="libelle" class="block text-black-700 font-semibold mb-2">Libelle</label>
+					<input type="text" name="libelle" id="libelle" placeholder="Entrez le libelle du Patient" class="w-full p-3 border border-gray-300 rounded-lg">
+
+				</div>
+				<div>
+					<button type="submit" class="w-[10]  p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300">
+						Ajouter une filiere
+					</button>
+				</div>
+			</form>
+		</div>
+
+
+		<div class="container mx-auto pt-6">
+			<div class="flex flex-col">
+				<div class="w-full bg-white rounded-lg shadow-md">
+					<div class="bg-red-500 text-white font-bold text-center text-xl p-4 rounded-t-lg">Liste des Filieres</div>
+					<div class="p-4">
+						<div class="overflow-x-auto">
+							{% if filieres is not empty %}
+								<table class="min-w-full bg-white rounded-lg border border-gray-200">
+									<thead>
+										<tr class="bg-gray-200 text-gray-700">
+											<th class="py-2 px-4 border-b text-center">Id</th>
+											<th class="py-2 px-4 border-b text-center">Libelle</th>
+											<th class="py-2 px-4 border-b text-center">Actions</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for filiere in filieres %}
+											<tr class="bg-white border-b border-gray-200 hover:bg-gray-100 text-center">
+												<td class="px-6 py-4 text-gray-700 text-center">{{ filiere.id }}</td>
+												<td class="px-6 py-4 text-gray-700 text-center">{{ filiere.libelle }}</td>
+												<td class="px-6 py-4 text-gray-700 text-center">
+													{# <a href="{{ path('filiere_edit', {'id': filiere.id}) }}" class="text-blue-600 hover:text-blue-800">
+														<i class="fas fa-edit"></i>
+													</a>
+													<a href="{{ path('filiere_delete', {'id': filiere.id}) }}" class="text-red-600 hover:text-red-800" onclick="return confirm('Are you sure?');">
+														<i class="fas fa-trash-alt"></i>
+													</a> #}
+												</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+								<div class="mt-4">
+									{{ knp_pagination_render(filieres) }}
+								</div>
+							{% else %}
+								<p>intouvable.</p>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
